@@ -1,0 +1,36 @@
+{
+  "name": "vue-modal",
+  "version": "0.1.0",
+  "description": "Utility library for displaying modals in Vue",
+  "scripts": {
+    "dev": "vite",
+    "build": "rm -rf dist && vue-tsc --noEmit && vite build"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "keywords": [],
+  "author": "dsplce.co",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.1",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "3.5.24",
+    "vue-tsc": "^3.1.8"
+  },
+  "peerDependencies": {
+    "vue": "3.x"
+  },
+  "dependencies": {
+    "@vueuse/components": "^14.1.0",
+    "@vueuse/core": "^14.1.0"
+  }
+}
