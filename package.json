@@ -32,5 +32,8 @@
   "dependencies": {
     "@vueuse/components": "^14.1.0",
     "@vueuse/core": "^14.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
