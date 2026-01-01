@@ -1,5 +1,5 @@
 {
-  "name": "vue-modal",
+  "name": "@dsplce-co/vue-modal",
   "version": "0.1.0",
   "description": "Utility library for displaying modals in Vue",
   "scripts": {
