@@ -6,6 +6,9 @@
     "dev": "vite",
     "build": "rm -rf dist && vue-tsc --noEmit && vite build"
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
