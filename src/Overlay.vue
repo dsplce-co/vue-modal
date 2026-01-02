@@ -15,5 +15,6 @@
     z-index: 10000;
 
     backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, .25);
 }
 </style>
