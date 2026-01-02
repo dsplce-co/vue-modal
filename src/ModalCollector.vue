@@ -1,6 +1,10 @@
 <template>
     <teleport to="body">
-        <slot :component :payload>
+        <slot
+            :component
+            :payload
+            :close
+        >
             <transition
                 :enter-active-class="$style['fade-enter-active']"
                 :leave-active-class="$style['fade-leave-active']"
