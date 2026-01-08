@@ -1,10 +1,10 @@
 import { Component } from "vue";
-import { PropsOf, RequiredProps } from "../types";
+import { MaybeReactivePropsOf, PropsOf, RequiredProps } from "../types";
 import useModalState from "./useModalState";
 
 type OpenFn<C extends Component> = RequiredProps<PropsOf<C>> extends never
-    ? (payload?: PropsOf<C>) => void
-    : (payload: PropsOf<C>) => void;
+    ? (payload?: MaybeReactivePropsOf<C>) => void
+    : (payload: MaybeReactivePropsOf<C>) => void;
 
 /**
  * Composable for controlling state of the modal
@@ -20,7 +20,7 @@ export default function useModal<C extends Component>(modalComponent: C) {
      * Open the modal
      * @param payload Props to pass to the modal component
      */
-    const open: OpenFn<C> = (payload?: PropsOf<C>) => {
+    const open: OpenFn<C> = (payload?: MaybeReactivePropsOf<C>) => {
         activeModal.component.value = modalComponent;
         activeModal.payload.value = payload ?? null;
     }

@@ -32,20 +32,39 @@ import { computed, Transition } from 'vue';
 import useModalState from './composables/useModalState';
 import Overlay from './Overlay.vue';
 
+withDefaults(
+    defineProps<{
+        /**
+         * Duration of the overlay animation
+         * @default 0.5s
+         */
+        transitionDuration?: string;
+    }>(),
+    {
+        transitionDuration: "0.5s"
+    },
+)
+
 const { activeModal } = useModalState();
-const payload = computed(() => activeModal.payload.value ?? {})
-const component = computed(() => activeModal.component.value)
+const payload = computed(() => activeModal.payload.value ?? {});
+const component = computed(() => activeModal.component.value);
 
 const close = () => {
     activeModal.payload.value = null;
     activeModal.component.value = null;
-}
+};
 
-useEventListener(document, 'keydown', e => {
-    if (e.key === 'Escape') {
+useEventListener(document, 'keydown', event => {
+    if (event.key === 'Escape') {
         close();
     }
-})
+});
+
+defineExpose({
+    payload,
+    component,
+    close,
+});
 </script>
 
 <script lang="ts">
@@ -58,7 +77,7 @@ export default {}
 <style module>
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.5s ease;
+    transition: opacity v-bind(transitionDuration) ease;
 }
 
 .fade-enter-from,

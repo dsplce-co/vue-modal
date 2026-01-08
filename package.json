@@ -1,6 +1,6 @@
 {
   "name": "@dsplce-co/vue-modal",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Utility library for displaying modals in Vue",
   "scripts": {
     "dev": "vite",
@@ -12,8 +12,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.mjs"
     }
   },
   "keywords": [],

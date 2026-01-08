@@ -17,8 +17,8 @@ export default defineConfig({
     lib: {
       entry: "src/index.ts",
       name: "VueModal",
-      formats: ["es", "cjs"],
-      fileName: (format) => (format === "es" ? "index.mjs" : "index.cjs"),
+      formats: ["es"],
+      fileName: "index",
     },
     rollupOptions: {
       external: ["vue"],

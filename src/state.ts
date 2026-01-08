@@ -1,9 +1,9 @@
-import { Component, MaybeRefOrGetter, shallowRef, ShallowRef } from "vue";
+import { Component, shallowRef, ShallowRef } from "vue";
 
 export interface State {
     activeModal: {
         component: ShallowRef<Component | null>;
-        payload: ShallowRef<MaybeRefOrGetter<Record<PropertyKey, unknown>> | null>;
+        payload: ShallowRef<Record<PropertyKey, unknown> | null>;
     }
 }
 

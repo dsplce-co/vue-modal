@@ -1,12 +1,46 @@
-name: Deploy to NPM
+name: Create release
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  deploy:
-    permissions:
-      id-token: write
-      contents: read
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      should_continue: ${{ steps.decision.outputs.continue }}
+      local_version: ${{ steps.decision.outputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - uses: pozetroninc/github-action-get-latest-release@master
+        id: remote
+        with:
+          owner: dsplce-co
+          repo: vue-modal
+          excludes: prerelease, draft
+      - name: Package version
+        id: local
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - run: echo remote ${{ steps.remote.outputs.release }}
+      - run: echo local ${{ steps.local.outputs.current-version }}
+      - id: decision
+        env:
+          LOCAL_VERSION: ${{ steps.local.outputs.current-version }}
+        run: |
+          if [ "${{ steps.remote.outputs.release }}" = "$LOCAL_VERSION" ]; then
+            echo "continue=false" >> $GITHUB_OUTPUT
+          else
+            echo "continue=true" >> $GITHUB_OUTPUT
+            echo "version=$LOCAL_VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: precheck
+    if: ${{ needs.precheck.outputs.should_continue == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,3 +58,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+      - name: Create github release
+        uses: v1olen/version-release-github-action@main
+        env:
+          version: ${{ needs.precheck.outputs.local_version }}
+        with:
+          download-pattern: "vue-modal-*"
+          release-version: "${{ env.version }}"
+          create-latest: "false"
