@@ -6,6 +6,9 @@
     "dev": "vite",
     "build": "rm -rf dist && vue-tsc --noEmit && vite build"
   },
+  "repository": {
+      "url": "https://github.com/dsplce-co/vue-modal"
+  },
   "files": [
     "dist"
   ],
