@@ -2,8 +2,8 @@
 
 # vue-modal
 
-![Vue version](https://img.shields.io/npm/dependency-version/%40dsplce-co%2Fvue-modal/dev/vue?style=for-the-badge&logo=vuedotjs&logoColor=white&label=%20&color=4FC08D)
-![TypeScript version](https://img.shields.io/npm/dependency-version/%40dsplce-co%2Fvue-modal/dev/typescript?style=for-the-badge&logo=typescript&logoColor=white&label=%20&color=3279C6)
+[![Vue version](https://img.shields.io/npm/dependency-version/%40dsplce-co%2Fvue-modal/dev/vue?style=for-the-badge&logo=vuedotjs&logoColor=white&label=%20&color=4FC08D)](https://vuejs.org/)
+[![TypeScript version](https://img.shields.io/npm/dependency-version/%40dsplce-co%2Fvue-modal/dev/typescript?style=for-the-badge&logo=typescript&logoColor=white&label=%20&color=3279C6)](https://www.typescriptlang.org/)
 [![NPM downloads](https://img.shields.io/npm/dw/%40dsplce-co%2Fvue-modal?style=for-the-badge&color=FF0447)](https://www.npmjs.com/package/@dsplce-co/vue-modal)
 [![NPM unpacked size](https://img.shields.io/npm/unpacked-size/%40dsplce-co%2Fvue-modal?style=for-the-badge)](https://www.npmjs.com/package/@dsplce-co/vue-modal)
 [![License](https://img.shields.io/npm/l/%40dsplce-co%2Fvue-modal?style=for-the-badge&color=007EC7)](https://www.npmjs.com/package/@dsplce-co/vue-modal)
