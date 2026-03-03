@@ -53,6 +53,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vue-modal-${{ needs.precheck.outputs.local_version }}
+          path: dist/
       - name: Create github release
         uses: v1olen/version-release-github-action@main
         with:
