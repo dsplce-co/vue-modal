@@ -46,11 +46,7 @@ withDefaults(
 )
 
 const { activeModal } = useModalState();
-const payload = computed(() => {
-    const raw = activeModal.payload.value;
-    if (!raw) return {};
-    return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, toValue(v)]));
-});
+const payload = computed(() => activeModal.payload.value ?? {});
 const component = computed(() => activeModal.component.value);
 
 const close = () => {
