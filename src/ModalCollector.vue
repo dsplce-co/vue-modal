@@ -58,7 +58,7 @@ const close = () => {
     activeModal.component.value = null;
 };
 
-onBeforeUnmount(() => close());
+onBeforeUnmount(close);
 
 useEventListener(document, 'keydown', event => {
     if (event.key === 'Escape') {
