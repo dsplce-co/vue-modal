@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { OnClickOutside } from '@vueuse/components';
 import { useEventListener } from '@vueuse/core';
-import { computed, Transition } from 'vue';
+import { computed, onBeforeUnmount, toValue, Transition } from 'vue';
 import useModalState from './composables/useModalState';
 import Overlay from './Overlay.vue';
 
@@ -46,13 +46,19 @@ withDefaults(
 )
 
 const { activeModal } = useModalState();
-const payload = computed(() => activeModal.payload.value ?? {});
+const payload = computed(() => {
+    const raw = activeModal.payload.value;
+    if (!raw) return {};
+    return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, toValue(v)]));
+});
 const component = computed(() => activeModal.component.value);
 
 const close = () => {
     activeModal.payload.value = null;
     activeModal.component.value = null;
 };
+
+onBeforeUnmount(() => close());
 
 useEventListener(document, 'keydown', event => {
     if (event.key === 'Escape') {
