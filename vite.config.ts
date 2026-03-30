@@ -9,16 +9,21 @@ export default defineConfig({
     dts({
       entryRoot: "src",
       insertTypesEntry: true,
-      rollupTypes: true
+      rollupTypes: false,
     }),
-    cssInjectedByJsPlugin()
+    cssInjectedByJsPlugin({
+      jsAssetsFilterFunction: ({ fileName }) => fileName === 'index.mjs',
+    })
   ],
   build: {
+    cssCodeSplit: false,
     lib: {
-      entry: "src/index.ts",
-      name: "VueModal",
+      entry: {
+        index: "src/index.ts",
+        resolver: "src/resolver.ts",
+      },
       formats: ["es"],
-      fileName: "index",
+      fileName: (_: string, entryName: string) => `${entryName}.mjs`,
     },
     rollupOptions: {
       external: ["vue"],

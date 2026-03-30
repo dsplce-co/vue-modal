@@ -311,6 +311,42 @@ The library provides minimal base styles for the overlay and positioning. You're
 
 ## 🔧 Advanced usage
 
+### Unplugin integrations
+
+`vue-modal` ships with a resolver for [unplugin-vue-components](https://github.com/unplugin/unplugin-vue-components) and a preset for [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import), so you can use components and composables without explicit imports.
+
+```bash
+npm install -D unplugin-vue-components unplugin-auto-import
+```
+
+```ts
+// vite.config.ts
+import Components from 'unplugin-vue-components/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import { VueModalResolver, VueModalPreset } from '@dsplce-co/vue-modal/resolver'
+
+export default defineConfig({
+  plugins: [
+    Components({ resolvers: [VueModalResolver()] }),
+    AutoImport({ imports: [VueModalPreset] }),
+  ],
+})
+```
+
+Now `ModalCollector` and `ModalOverlay` are auto-imported as components, and `useModal` is globally available without imports:
+
+```vue
+<script setup lang="ts">
+import ConfirmationModal from './ConfirmationModal.vue'
+
+const modal = useModal(ConfirmationModal) // no import needed
+</script>
+
+<template>
+  <ModalCollector /> <!-- no import needed -->
+</template>
+```
+
 ### Custom modal overlay and wrapper
 
 You can customise how modals are rendered by using the ModalCollector's slot:
