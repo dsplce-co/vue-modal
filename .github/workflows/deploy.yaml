@@ -1,11 +1,12 @@
-name: Create release
+name: Publish
+
 on:
   push:
     branches: [main]
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   precheck:
@@ -14,28 +15,22 @@ jobs:
       should_continue: ${{ steps.decision.outputs.continue }}
       local_version: ${{ steps.decision.outputs.version }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - uses: pozetroninc/github-action-get-latest-release@master
+      - uses: actions/checkout@v4
+      - name: Get npm version
         id: remote
-        with:
-          owner: dsplce-co
-          repo: vue-modal
-          excludes: prerelease, draft
-      - name: Package version
+        run: echo "version=$(npm show @dsplce-co/vue-modal version)" >> $GITHUB_OUTPUT
+      - name: Get package version
         id: local
         uses: martinbeentjes/npm-get-version-action@v1.3.1
-      - run: echo remote ${{ steps.remote.outputs.release }}
+      - run: echo remote ${{ steps.remote.outputs.version }}
       - run: echo local ${{ steps.local.outputs.current-version }}
       - id: decision
-        env:
-          LOCAL_VERSION: ${{ steps.local.outputs.current-version }}
         run: |
-          if [ "${{ steps.remote.outputs.release }}" = "$LOCAL_VERSION" ]; then
+          if [ "${{ steps.remote.outputs.version }}" = "${{ steps.local.outputs.current-version }}" ]; then
             echo "continue=false" >> $GITHUB_OUTPUT
           else
             echo "continue=true" >> $GITHUB_OUTPUT
-            echo "version=$LOCAL_VERSION" >> "$GITHUB_OUTPUT"
+            echo "version=${{ steps.local.outputs.current-version }}" >> "$GITHUB_OUTPUT"
           fi
 
   publish:
@@ -58,11 +53,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vue-modal-${{ needs.precheck.outputs.local_version }}
+          path: dist/
       - name: Create github release
         uses: v1olen/version-release-github-action@main
-        env:
-          version: ${{ needs.precheck.outputs.local_version }}
         with:
           download-pattern: "vue-modal-*"
-          release-version: "${{ env.version }}"
+          release-version: ${{ needs.precheck.outputs.local_version }}
           create-latest: "false"
