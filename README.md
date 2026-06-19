@@ -9,28 +9,54 @@
 [![License](https://img.shields.io/npm/l/%40dsplce-co%2Fvue-modal?style=for-the-badge&color=007EC7)](https://www.npmjs.com/package/@dsplce-co/vue-modal)
 [![NPM version](https://img.shields.io/npm/v/%40dsplce-co%2Fvue-modal?style=for-the-badge&color=0F80C1)](https://www.npmjs.com/package/@dsplce-co/vue-modal)
 
-🧩 **Modal composable for Vue** — A minimal and type-safe framework for modals in [Vue.js](https://vuejs.org/) applications.
+🧩 **Call modals imperatively, declare them declaratively** — a minimal, type-safe modal framework for [Vue 3](https://vuejs.org/).
 
----
+`vue-modal` lets you register a modal once and then drive it from anywhere — open it, close it, hand it fully-typed props — without prop-drilling a single `isOpen` flag through your component tree. It's the elevator, not the staircase: you don't pour a new shaft on every floor, you mount one collector and press the button (`modal.open()`) from wherever you happen to be standing.
 
 ## 🖤 Features
 
-✅ Type-safe modal system with generics<br>
-✅ Automatic prop requirement inference<br>
-✅ Close your modals from anywhere with composables<br>
-✅ ARIA-compliant<br>
-✅ Esc key handling<br>
-✅ Click outside to close<br>
-✅ Teleport-based rendering with proper z-index<br>
-✅ Built-in smooth transitions<br>
-✅ Zero external CSS dependencies<br>
-✅ Vue 3 Composition API ready<br>
+- **Type-safe by construction** — `useModal` reads your component's own props and makes you pass the required ones; the wrong shape gets caught by your editor, not by your users.
+- **Open and close from anywhere** — modal state lives outside the component tree, so whoever holds the composable holds the off-switch. No `isOpen` ref drilled through five components that don't care.
+- **Teleport-rendered** — mount one `<ModalCollector />` and every modal renders at `<body>` with a z-index that _always wins_; no `overflow: hidden` parent clips it in half.
+- **Esc _and_ click-outside** — both dismissals wired out of the box, the two things every human reflexively reaches for.
+- **Zero CSS to import** — built-in fade (tune it with `transitionDuration`), styles injected straight from the JS; no stylesheet for you to forget.
+
+And the bits you'd expect to _just work_:
+
+- one modal on screen at a time (why would you ever want two? 🤨)
+- a `ModalCollector` slot for bringing your own overlay and wrapper
+- `<script setup>`-native, Composition API throughout
+- an `unplugin` resolver + preset, so `useModal` and `ModalCollector` auto-import themselves
 
 ---
 
-## 📦 Installation
+## Table of Contents
 
-Add to your `package.json`:
+- [🖤 Features](#-features)
+- [📦 Installation](#-installation)
+- [🧪 Usage](#-usage)
+  - [1. Install the plugin](#1-install-the-plugin)
+  - [2. Drop in the collector](#2-drop-in-the-collector)
+  - [3. Build a modal](#3-build-a-modal)
+  - [4. Open it with useModal](#4-open-it-with-usemodal)
+- [📐 API reference](#-api-reference)
+  - [VueModalPlugin](#vuemodalplugin)
+  - [ModalCollector](#modalcollector)
+  - [useModal](#usemodal)
+  - [ModalOverlay](#modaloverlay)
+  - [What the collector handles](#what-the-collector-handles)
+  - [Writing a modal component](#writing-a-modal-component)
+- [🎨 Styling](#-styling)
+- [🔧 Advanced usage](#-advanced-usage)
+  - [Auto-import with unplugin](#auto-import-with-unplugin)
+  - [Custom modal overlay and wrapper](#custom-modal-overlay-and-wrapper)
+- [🛠️ Requirements](#%EF%B8%8F-requirements)
+- [📁 Repo & Contributions](#-repo--contributions)
+- [📄 License](#-license)
+
+⸻
+
+## 📦 Installation
 
 ```bash
 npm install @dsplce-co/vue-modal
@@ -40,15 +66,17 @@ yarn add @dsplce-co/vue-modal
 pnpm add @dsplce-co/vue-modal
 ```
 
-This package requires Vue 3.
+That's the whole dependency — it leans on Vue 3 and nothing else you have to install yourself (see [Requirements](#%EF%B8%8F-requirements)).
 
----
+⸻
 
 ## 🧪 Usage
 
-### 1. Set up the plugin
+Four steps: install the plugin, drop the collector in once, write a modal, open it. The first two you do a single time; after that it's just `useModal` wherever you need it.
 
-Install the Vue Modal plugin in your main application file to enable global modal state management:
+### 1. Install the plugin
+
+The plugin wires up the global modal state every `useModal` call reaches into. Add it in your app entry:
 
 ```js
 import { createApp } from 'vue';
@@ -61,9 +89,9 @@ app.use(VueModalPlugin);
 app.mount('#app');
 ```
 
-### 2. Add modal collector
+### 2. Drop in the collector
 
-Add the `ModalCollector` component to your app root to enable modal rendering. This will manage the rendering of all modals in a single location.
+`ModalCollector` is the single place all your modals actually render — your one elevator shaft. Put it once at your app root and never think about it again:
 
 ```vue
 <template>
@@ -81,11 +109,9 @@ import { ModalCollector } from '@dsplce-co/vue-modal';
 </script>
 ```
 
-### 3. Create modal component
+### 3. Build a modal
 
-Imagine in your application there is a user list view, and you want to add the functionality to delete a user. You decide a confirmation dialog would come in handy.
-
-In `vue-modal`, your modal component can be any regular Vue component. It receives props as usual and can emit a `close` event:
+Here's the part people expect to be hard and isn't: a modal is just a component. Say you've got a user list and you want an "are you sure?" before deleting one — that confirmation dialog is a plain Vue component that takes props like any other and emits `close` when it's done:
 
 ```vue
 <template>
@@ -152,12 +178,11 @@ const confirmDelete = () => {
   color: white;
 }
 </style>
-
 ```
 
-### 4. Use the modal
+### 4. Open it with `useModal`
 
-Now that you've defined the confirmation modal, let's use it with the `useModal` composable:
+Now wire it up. `useModal` takes your component and hands back an `open`/`close` pair — and because it read your props, it *knows* `user` and `onConfirm` are required and won't let you call `open()` without them:
 
 ```vue
 <template>
@@ -206,15 +231,13 @@ const onDelete = (user: User) => {
 </script>
 ```
 
----
+⸻
 
 ## 📐 API reference
 
-### Plugin setup
+### `VueModalPlugin`
 
-#### `VueModalPlugin`
-
-Vue plugin that sets up global modal state management.
+The Vue plugin that sets up global modal state. Install it once — everything else assumes it's there, and `useModal` throws a clear error if it isn't:
 
 ```js
 import { createApp } from 'vue';
@@ -223,23 +246,27 @@ import VueModalPlugin from '@dsplce-co/vue-modal';
 app.use(VueModalPlugin);
 ```
 
-### Components
+### `ModalCollector`
 
-#### `ModalCollector`
+The component that renders the active modal, via Vue's `<teleport>`. Mount it once, near your app root.
 
-Component that manages modal rendering using Vue's teleport system.
+| Prop | Type | Default | What it does |
+|------|------|---------|--------------|
+| `transitionDuration` | `string` | `"0.5s"` | Length of the fade in/out — any CSS time value (`"200ms"`, `"1s"`, …) |
+
+It also exposes a default slot — `{ component, payload, close }` — for when you want to render the overlay and wrapper yourself. See [Custom modal overlay and wrapper](#custom-modal-overlay-and-wrapper).
 
 ```vue
 <template>
   <ModalCollector />
+  <!-- or, slower fade: -->
+  <ModalCollector transition-duration="1s" />
 </template>
 ```
 
-### Composables
+### `useModal`
 
-#### `useModal`
-
-Creates a typed modal controller for a specific component:
+Creates a typed controller for one modal component:
 
 ```js
 import { useModal } from '@dsplce-co/vue-modal';
@@ -247,28 +274,45 @@ import { useModal } from '@dsplce-co/vue-modal';
 const modal = useModal(YourModalComponent);
 ```
 
-Returns an object with:
-- `open(props)` - Opens the modal with provided props
-- `close()` - Closes the modal
+Returns:
 
-**Type safety**: The composable automatically infers whether props are required or optional based on your component's prop definitions:
+- `open(props)` — opens the modal, passing `props` through to your component
+- `close()` — closes whatever's open
+
+**Type safety is the whole point.** The controller infers from your component whether props are required or optional, and the compiler holds you to it:
 
 ```ts
-// If modal has required props
+// If the modal has required props
 modal.open({ requiredProp: 'value' }); // ✅ TypeScript enforces this
 
-// If modal has only optional props
-modal.open(); // ✅ Props can be omitted
-modal.open({ optionalProp: 'value' }); // ✅ Or provided
+// If the modal has only optional props
+modal.open(); // ✅ props can be omitted
+modal.open({ optionalProp: 'value' }); // ✅ or provided
 ```
 
-### Modal component guidelines
+### `ModalOverlay`
 
-Your modal components should:
+The default backdrop — a fixed, centered, blurred overlay that the collector wraps your modal in automatically. You only import it directly when you're building a [custom collector slot](#custom-modal-overlay-and-wrapper) and want the stock backdrop back. Like `ModalCollector`, it's exported from the package and resolvable via the [unplugin resolver](#auto-import-with-unplugin).
 
-1. **Emit `close` event**: Use `$emit('close')` or `defineEmits(['close'])` to enable closing
-2. **Handle props**: Define props normally using `defineProps` or `props` option
-3. **Style appropriately**: Apply styles for the modal content (overlay is handled by the collector)
+### What the collector handles
+
+- **Teleport** — modals render at `<body>` level, above everything (`z-index: 10000`)
+- **Backdrop** — a semi-transparent overlay with a `blur(4px)` behind your content
+- **Dismissal** — `Esc` and click-outside both close the active modal
+- **Transitions** — fade in/out, timed by `transitionDuration`
+- **One at a time** — opening a modal replaces whatever was already open
+- **Centering** — full-viewport overlay, content centered
+
+> **On accessibility:** vue-modal deliberately stays out of your modal's *content*, which means it doesn't impose ARIA roles or a focus trap on you. `role="dialog"`, `aria-modal`, labelling and focus management belong in your own modal component — that's where the content lives, so that's where they make sense. Wire them there.
+
+### Writing a modal component
+
+Whatever you open just needs to play along with two things:
+
+1. **Emit `close`** — `$emit('close')` (or `defineEmits(['close'])`) is how your modal asks to be dismissed. The collector also closes on `Esc` and click-outside, but an in-modal "Close" button needs this.
+2. **Declare props normally** — `defineProps` as usual; the collector binds whatever you passed to `open()` straight onto your component.
+
+Styling the *content* is yours; the overlay and positioning are the collector's (see [Styling](#-styling)).
 
 ```vue
 <template>
@@ -290,30 +334,19 @@ defineEmits(['close']);
 </script>
 ```
 
-### Modal features
-
-- **Accessibility**: Proper ARIA attributes and focus management
-- **Keyboard Navigation**: Esc key closes modal automatically
-- **Click Outside**: Click outside the modal content to close
-- **Portal Rendering**: Modals render at the body level using Vue's teleport
-- **Single Modal**: Only one modal can be open at a time (why would you want to show more than one modal at a time? 🤨)
-- **Transitions**: Smooth fade in/out animations
-- **Responsive**: Full viewport coverage with centered content
-- **Backdrop**: Semi-transparent backdrop with blur effect
-
----
+⸻
 
 ## 🎨 Styling
 
-The library provides minimal base styles for the overlay and positioning. You're responsible for styling your modal components.
+The library brings the bare minimum: the overlay, the blur, the centering, the fade. Everything *inside* the modal — the card, the padding, the buttons — is yours, because it's your component. No design opinions shipped, nothing of yours to override.
 
----
+⸻
 
 ## 🔧 Advanced usage
 
-### Unplugin integrations
+### Auto-import with unplugin
 
-`vue-modal` ships with a resolver for [unplugin-vue-components](https://github.com/unplugin/unplugin-vue-components) and a preset for [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import), so you can use components and composables without explicit imports.
+`vue-modal` ships a resolver for [unplugin-vue-components](https://github.com/unplugin/unplugin-vue-components) and a preset for [unplugin-auto-import](https://github.com/unplugin/unplugin-auto-import), so the components and the composable show up without you importing them by hand.
 
 ```bash
 npm install -D unplugin-vue-components unplugin-auto-import
@@ -349,7 +382,7 @@ const modal = useModal(ConfirmationModal) // no import needed
 
 ### Custom modal overlay and wrapper
 
-You can customise how modals are rendered by using the ModalCollector's slot:
+Don't like the stock overlay? The `ModalCollector` default slot hands you the active `component`, its `payload`, and a `close` function — render the lot however you like:
 
 ```vue
 <ModalCollector v-slot="{ component, payload, close }">
@@ -365,19 +398,23 @@ You can customise how modals are rendered by using the ModalCollector's slot:
 </ModalCollector>
 ```
 
----
+⸻
 
-## 📁 Repo & contributions
+## 🛠️ Requirements
 
-📦 Package: [@dsplce-co/vue-modal](https://www.npmjs.com/package/@dsplce-co/vue-modal)<br/>
-🛠️ Repo: [github.com/dsplce-co/vue-modal](https://github.com/dsplce-co/vue-modal)<br/>
+- **Vue 3** — declared as a peer dependency (`3.x`)
 
-Contributions, issues, ideas? Hit us up 🖤
+⸻
 
----
+## 📁 Repo & Contributions
 
-## 🔒 License
+📦 **Package**: [@dsplce-co/vue-modal](https://www.npmjs.com/package/@dsplce-co/vue-modal)<br/>
+🛠️ **Repo**: [github.com/dsplce-co/vue-modal](https://github.com/dsplce-co/vue-modal)
+
+Contributions, issues, suggestions welcome. Hit us up 🖤
+
+⸻
+
+## 📄 License
 
 MIT or Apache-2.0, at your option.
-
----
